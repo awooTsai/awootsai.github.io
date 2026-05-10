@@ -1,0 +1,80 @@
+<!--
+  awoo 統一兩段式 footer（v2026-04-09）
+  
+  使用方式：
+  1. 將此檔案內容貼到 HTML 報告的最後 </body> 之前
+  2. SCAN_DATE 替換為實際掃描日期（YYYY-MM-DD 格式）
+  3. 第一段使用 rgba(15,23,42,0.55) 半透明深色
+  4. 第二段使用 rgba(180,83,9,0.65) 棕橙色 + italic
+  5. 字體 15px 為最小值
+  
+  四個 Skill 共用此 footer，確保視覺一致性。
+-->
+
+<footer class="report-footer">
+  <img src="https://awootsai.github.io/awoo_logo_ftr.png" alt="awoo 阿物科技">
+  <div class="footer-p1">本報告透過 awoo 阿物科技 近 20 年資料庫與 AI 運算生成（掃描日期 SCAN_DATE）</div>
+  <div class="footer-p2">⚠️ 網頁體質現況透過程式抓取通常無誤，但 AI 生成內容偶有偏差，還請人工確認</div>
+  <a href="https://www.awoo.ai" target="_blank" rel="noopener" class="footer-link">www.awoo.ai</a>
+</footer>
+
+<!--
+  必要的 CSS（合併到 Skill 的 <style> 區塊）：
+
+  .report-footer {
+    background: var(--dark);
+    text-align: center;
+    padding: 40px 28px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .footer-p1 {
+    color: rgba(15,23,42,0.55);
+    font-size: 15px;
+    padding: 2rem 1rem 0.5rem;
+  }
+  .footer-p2 {
+    color: rgba(180,83,9,0.65);
+    font-style: italic;
+    font-size: 15px;
+    padding: 0 1rem 2rem;
+  }
+  .report-footer img {
+    height: 32px;
+    opacity: 0.5;
+    display: block;
+    margin: 0 auto 18px;
+    filter: brightness(0) invert(1);
+  }
+  .footer-link {
+    color: rgba(255,255,255,0.5);
+    font-size: 15px;
+    text-decoration: none;
+  }
+  .footer-link:hover {
+    color: var(--white);
+    text-decoration: underline;
+  }
+-->
+
+<!--
+  針對不同 Skill 的微調：
+  
+  - ada-geo-site-audit / geo-keyword-research / geo-prompt-builder：
+    第一段「本報告透過 awoo 阿物科技 近 20 年資料庫與 AI 運算生成（掃描日期 SCAN_DATE）」
+  
+  - ada-geo-tech-audit（專員版）：
+    第一段可改為「本技術盤點透過 awoo 阿物科技 近 20 年資料庫與 AI 運算生成（掃描日期 SCAN_DATE）」
+    第二段：「⚠️ 此報告僅供 awoo 內部專員執行使用，不對客戶呈現」
+-->
+
+<!--
+  日文版 footer：
+  
+  <footer class="report-footer">
+    <img src="https://awootsai.github.io/awoo_logo_ftr.png" alt="awoo 阿物科技">
+    <div class="footer-p1">本レポートはawoo阿物科技の20年近くにわたるデータベースとAI技術により生成されました（スキャン日：SCAN_DATE）</div>
+    <div class="footer-p2">⚠️ Webページの体質分析はプログラムによるスキャンに基づいており、通常は正確ですが、AI生成コンテンツには誤差が生じる場合があります。人による最終確認をお勧めします</div>
+    <a href="https://www.awoo.ai/ja/" target="_blank" rel="noopener" class="footer-link">www.awoo.ai/ja/</a>
+  </footer>
+-->
