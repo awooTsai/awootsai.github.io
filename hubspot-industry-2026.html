@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>awoo 客戶產業分佈分析 — 2026 年度</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'PingFang TC', '微軟正黑體', sans-serif;
+    font-size: 16px;
+    background: #f8f9fa;
+    color: #1a1a2e;
+    padding: 36px;
+    line-height: 1.6;
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1a1a2e;
+  }
+  .subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 36px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 12px;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+  }
+  thead th {
+    background: #f0f4ff;
+    padding: 11px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #4a4a8a;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+  }
+  thead th:nth-child(2), thead th:nth-child(3) {
+    text-align: center;
+  }
+  tbody tr { border-bottom: 1px solid #f2f2f2; }
+  tbody tr:hover { background: #fafbff; }
+  td { padding: 10px 12px; vertical-align: middle; }
+  td:nth-child(2), td:nth-child(3) { text-align: center; }
+  .dot {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .cat-name { display: flex; align-items: center; font-size: 16px; }
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bar {
+    height: 10px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .pct-txt { font-size: 15px; color: #666; }
+  .count-badge {
+    display: inline-block;
+    background: #f0f4ff;
+    color: #4a4a8a;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .reps {
+    font-size: 14px;
+    color: #888;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .total-row td {
+    background: #f7f7f9;
+    font-weight: 700;
+    border-top: 2px solid #ddd;
+    font-size: 16px;
+  }
+
+  /* PIE */
+  .pie-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  svg.pie {
+    width: 280px;
+    height: 280px;
+    margin-bottom: 24px;
+  }
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+    width: 100%;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: #333;
+  }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-pct {
+    color: #888;
+    font-size: 14px;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<h1>📊 awoo 客戶產業分佈分析</h1>
+<p class="subtitle">資料來源：HubSpot 2026 年度商機資料 · 共 230 家公司 · 以 chan_ye_fen_lei 分類</p>
+
+<div class="layout">
+
+  <!-- TABLE CARD -->
+  <div class="card">
+    <h2>產業分佈明細表</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>產業類別</th>
+          <th>家數</th>
+          <th>佔比 / 分佈</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- PIE CARD -->
+  <div class="card">
+    <h2>產業比例圓餅圖</h2>
+    <div class="pie-wrap">
+      <svg class="pie" viewBox="0 0 280 280" id="pie-svg"></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const COLORS = [
+  '#4361ee','#3a86ff','#7b2d8b','#2ec4b6','#e76f51',
+  '#f4a261','#e9c46a','#06d6a0','#ef476f','#adb5bd'
+];
+
+const data = [
+  { cat: '科技軟體 × 智慧製造', count: 60, reps: ['圓展科技','台灣微告','李長榮化學','富強鑫精密'] },
+  { cat: '醫療健康 × 生技製藥', count: 27, reps: ['全力專注國際','十藝生技','松合產業','利維喜'] },
+  { cat: '教育文化 × 媒體娛樂', count: 24, reps: ['聯利媒體','臺北表演藝術中心','禾樂映像','統一資訊'] },
+  { cat: '居家生活 × 建築設計', count: 23, reps: ['信義房屋','台灣怡倫家居','比沙列室內設計','日儷昌貿易'] },
+  { cat: '其他',                 count: 21, reps: ['榮帝科技','配客嘉','康蒔生活','城崧'] },
+  { cat: '食品餐飲 × 農業電商', count: 20, reps: ['吉康食品','茶中文化','百城機械','愛冰島貿易'] },
+  { cat: '金融財務 × 保險理財', count: 18, reps: ['富邦產物保險','國泰綜合證券','玉山證券','嘉實資訊'] },
+  { cat: '旅遊住宿 × 交通移動', count: 16, reps: ['長汎旅行社','太平洋旅行社','翔裕旅行社','捷豐物流'] },
+  { cat: '時尚服飾 × 生活風格', count: 14, reps: ['匯勤企業','艾思妮國際','媽媽餵','海邊生活設計'] },
+  { cat: '美妝保養 × 個人護理', count:  7, reps: ['樂兒美','台灣奧蜜思','奧碧虹化粧品','美科實業'] },
+];
+
+const total = data.reduce((s,d)=>s+d.count, 0);
+
+// TABLE
+const tbody = document.getElementById('table-body');
+data.forEach((d,i) => {
+  const pct = (d.count/total*100).toFixed(1);
+  const barW = Math.round(d.count/total*130);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <div class="cat-name"><span class="dot" style="background:${COLORS[i]}"></span>${d.cat}</div>
+      <div class="reps">${d.reps.join(' · ')}</div>
+    </td>
+    <td><span class="count-badge">${d.count}</span></td>
+    <td>
+      <div class="bar-wrap">
+        <div class="bar" style="width:${barW}px;background:${COLORS[i]}"></div>
+        <span class="pct-txt">${pct}%</span>
+      </div>
+    </td>`;
+  tbody.appendChild(tr);
+});
+
+// total row
+const ttr = document.createElement('tr');
+ttr.className = 'total-row';
+ttr.innerHTML = `<td>合計</td><td><span class="count-badge">${total}</span></td><td class="pct-txt">100%</td>`;
+tbody.appendChild(ttr);
+
+// PIE CHART
+const svg = document.getElementById('pie-svg');
+const cx = 140, cy = 140, r = 120;
+let startAngle = -Math.PI/2;
+
+data.forEach((d,i) => {
+  const angle = (d.count/total) * 2*Math.PI;
+  const endAngle = startAngle + angle;
+  const x1 = cx + r * Math.cos(startAngle);
+  const y1 = cy + r * Math.sin(startAngle);
+  const x2 = cx + r * Math.cos(endAngle);
+  const y2 = cy + r * Math.sin(endAngle);
+  const large = angle > Math.PI ? 1 : 0;
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z`);
+  path.setAttribute('fill', COLORS[i]);
+  path.setAttribute('stroke','#fff');
+  path.setAttribute('stroke-width','2');
+  const title = document.createElementNS('http://www.w3.org/2000/svg','title');
+  title.textContent = `${d.cat}: ${d.count} 家 (${(d.count/total*100).toFixed(1)}%)`;
+  path.appendChild(title);
+  svg.appendChild(path);
+
+  const pct = d.count/total*100;
+  if(pct >= 5) {
+    const midAngle = startAngle + angle/2;
+    const lr = r * 0.65;
+    const lx = cx + lr * Math.cos(midAngle);
+    const ly = cy + lr * Math.sin(midAngle);
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x', lx);
+    text.setAttribute('y', ly);
+    text.setAttribute('text-anchor','middle');
+    text.setAttribute('dominant-baseline','middle');
+    text.setAttribute('fill','#fff');
+    text.setAttribute('font-size','13');
+    text.setAttribute('font-weight','700');
+    text.setAttribute('font-family','system-ui,sans-serif');
+    text.textContent = pct.toFixed(0)+'%';
+    svg.appendChild(text);
+  }
+
+  startAngle = endAngle;
+});
+
+// LEGEND
+const legendEl = document.getElementById('legend');
+data.forEach((d,i) => {
+  const pct = (d.count/total*100).toFixed(1);
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.innerHTML = `<span class="legend-dot" style="background:${COLORS[i]}"></span>${d.cat}<span class="legend-pct">${pct}%</span>`;
+  legendEl.appendChild(item);
+});
+</script>
+</body>
+</html>
